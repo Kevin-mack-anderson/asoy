@@ -24,7 +24,8 @@ web_schedule_list = [
 def speak(text):
   try:
     engine = pyttsx3.init()
-    engine.setProperty("rate", 150)
+    voices = engine.getProperty("voices")
+    engine.setProperty("rate", 250)
     engine.say(text)
     engine.runAndWait()
   except:
@@ -40,7 +41,7 @@ class Pesanan:
     if asal == "OJOL":
       self.durasi = random.randint(10, 20)
     else: 
-      self.durasi = random.randint(2, 5)
+      self.durasi = random.randint(6, 10)
 
   def __repr__(self):
     return f"[{self.asal}] {self.nama_psn}"
@@ -49,7 +50,7 @@ class Pesanan:
 def generator_ojol():
   menu = ["Kopi Kampung", "Blue Lagon", "MilkTea"]
   while True:
-    time.sleep(random.randint(7,7))
+    time.sleep(random.randint(12,12))
     item = random.sample(menu, k=2)
     pesanannya ="&".join(item) 
     order = Pesanan("OJOL",pesanannya )
@@ -58,13 +59,13 @@ def generator_ojol():
     antrean_utama.put((1, time.time(), order))
 
     print(f"{grs}\n\t\t[NEW CHECKER] \n{grs}\n{date.today()} \t\t\t\t    {time.strftime("%H:%M")}\n{order}\nPrioritas\t\t\t\t\t1\nSegera Diproses! \n{grs}")
-    threading.Thread(target= speak, args= (f"PESANAN BARU DARI OJOL , {item}",), daemon=True).start()
+    threading.Thread(target= speak, args= (f"PESANAN BARU DARI OJEK ONLINE , {item}",), daemon=True).start()
 
 # Generator Walk In
 def generator_walkIn():
   menu = ["Kopi Aren", "ButterScotch", "Pasta"]
   while True:
-    time.sleep(random.randint(7,7))
+    time.sleep(random.randint(7,15))
     item = random.choice(menu)
     order = Pesanan("WALK-IN", item)
 
@@ -94,8 +95,7 @@ def generator_walkIn():
 
 # Thread Pemroses
 # TERAKHIR PENGERJAAN STUCK DI NAMA BARISTA
-NAMA_BARISTA = ["Ucup", "Asep", "Dadang"]
-nama = NAMA_BARISTA
+NAMA = "Ucup"
 # Ada pembaruan
 def barista_eksekutor():
   # Penambahan fitur di barista
@@ -104,21 +104,12 @@ def barista_eksekutor():
     if not antrean_utama.empty():
       prio, time_stamp, data = antrean_utama.get()
 
-      print(f"\n >>Barista: { t_barista3.name} SEDANG MEMBUAT: {data} (Prioritas: {prio})  (DURASI: {data.durasi})")
+      print(f"\n >>Barista: { NAMA} SEDANG MEMBUAT: {data} (Prioritas: {prio})  (DURASI: {data.durasi})")
       time.sleep(5)
-      print(f">>> Barista:{ t_barista3.name} PESANAN {data} SELESAI!!")
+      print(f">>> Barista:{ NAMA} PESANAN {data} SELESAI!!")
 
       antrean_utama.task_done()
-    if not antrean_utama.empty():
-
-        print(f"\n >>Barista: { t_barista.name} SEDANG MEMBUAT: {data} (Prioritas: {prio})  (DURASI: {data.durasi})")
-        pri, time_stamp, data = antrean_utama.get()
-        time.sleep(5)
-        print(f">>> Barista:{ t_barista.name} PESANAN {data} SELESAI!!")
-
-
-        antrean_utama.task_done()
-      
+   
     else:
       time.sleep(1)
 
@@ -128,9 +119,9 @@ if __name__ == "__main__":
   print("Tekan Ctrl+C untuk berhenti. \n")
 
 # Fitur Nama Barista  
-t_barista = threading.Thread(target=barista_eksekutor, name="udin", daemon=True)
-t_barista2 = threading.Thread(target=barista_eksekutor, name="Do'eng", daemon=True)
-t_barista3 = threading.Thread(target=barista_eksekutor, name="Asep", daemon=True)
+handler1 = threading.Thread(target=barista_eksekutor, daemon=True)
+handler2 = threading.Thread(target=barista_eksekutor, daemon=True)
+handler3 = threading.Thread(target=barista_eksekutor, daemon=True)
 # Inisialisasi thread
 t_ojol = threading.Thread(target=generator_ojol, daemon=True)
 t_walkin = threading.Thread(target=generator_walkIn, daemon=True)
@@ -139,9 +130,9 @@ t_walkin = threading.Thread(target=generator_walkIn, daemon=True)
 t_ojol.start()
 t_walkin.start()
 # t_web.start()
-t_barista.start()
-t_barista2.start()
-t_barista3.start()
+handler1.start()
+handler2.start()
+handler3.start()
 
 
 try: 
@@ -149,4 +140,5 @@ try:
     time.sleep(1)
 except KeyboardInterrupt:
   print("\n Sistem dimatikan oleh user")
+\
 
