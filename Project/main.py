@@ -66,10 +66,9 @@ class Pesanan:
 def generator_ojol():
   menu = ["Kopi Kampung", "Blueocean", "Milktea"]
   while True:
-    time.sleep(random.randint(12,12))
-    item = random.sample(menu, k=2)
-    pesanannya ="&".join(item) 
-    order = Pesanan("OJOL",pesanannya )
+    time.sleep(random.randint(12,19))
+    item = random.choice(menu)
+    order = Pesanan("OJOL",item)
 
     # Priority 1 Ojol
     antrean_utama.put((1, time.time(), order))
@@ -92,7 +91,7 @@ def generator_walkIn():
     threading.Thread(target= speak, args= (f"PESANAN BARU WALK-IN, {item}",), daemon=True).start()
 
 # Scheduler
-# def scheduler_web():
+def scheduler_web():
   while True:
     current_time = time.strftime("%H:%M")
     for order_data in web_schedule_list[:]:
@@ -102,8 +101,8 @@ def generator_walkIn():
         # Scale Priority = 3
         antrean_utama.put((3, time.time(), order))
 
-        print(f"\n[JADWAL] {order} masuk antrian sesuai jadwal.")
-        threading.Thread(target= speak, args= (f"SAATNYA PROSES PESANAN WEB, {order_data["item"]}",), daemon=True).start()
+        print(f"\n\t\t[CHECKER JADWAL]\n {grs}\n {order}\n masuk antrian sesuai jadwal.\n{grs}")
+        threading.Thread(target= speak, args= (f"SAATNYA PROSES PESANAN WEB{order_data["item"]}",), daemon=True).start()
         web_schedule_list.remove(order_data)
 
     time.sleep(10)
@@ -139,10 +138,11 @@ handler3 = threading.Thread(target=barista_eksekutor, daemon=True)
 # Inisialisasi thread
 t_ojol = threading.Thread(target=generator_ojol, daemon=True)
 t_walkin = threading.Thread(target=generator_walkIn, daemon=True)
-# t_web = threading.Thread(target=scheduler_web, daemon=True)
+t_web = threading.Thread(target=scheduler_web, daemon=True)
+# turn on
 t_ojol.start()
 t_walkin.start()
-# t_web.start()
+t_web.start()
 handler1.start()
 handler2.start()
 handler3.start()
