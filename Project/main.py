@@ -12,7 +12,6 @@ os.system("cls")
 grs = "-"*50
 # Inisialisasi Penampung
 antrean_utama = queue.PriorityQueue()
-lihat = antrean_utama
 
 # Data web (scheduling)
 web_schedule_list = [
@@ -25,6 +24,7 @@ def speak(text):
   try:
     engine = pyttsx3.init()
     voices = engine.getProperty("voices")
+    engine.setProperty('voice', voices[1].id )
     engine.setProperty("rate", 250)
     engine.say(text)
     engine.runAndWait()
@@ -37,18 +37,34 @@ class Pesanan:
   def __init__(self, asal, nama_pesanan):
     self.asal = asal
     self.nama_psn = nama_pesanan
-    # Penambahan fitur kecepatan membuat
-    if asal == "OJOL":
-      self.durasi = random.randint(10, 20)
-    else: 
-      self.durasi = random.randint(6, 10)
+    # 9/5/2026 11:14
+    self.data_durasi = {
+      "Kopi Kampung":10,
+      "Blue Ocean":12,
+      "Pasta":15,
+      "French fries":15,
+      "Milktea":10,
+      "Butterscotch":10,
+      "Kopi Aren":11
+      }
+    
+    self.durasi = self.hitung_total_durasi(self.nama_psn)
+  def hitung_total_durasi(self, nama):
+      total = 0
+      items = nama.split("&")
+      for item in items:
+        total += self.data_durasi.get(item, 7)
+        return total
+    # =====
+   
 
   def __repr__(self):
     return f"[{self.asal}] {self.nama_psn}"
+  
 
 # fungsi thread ojol
 def generator_ojol():
-  menu = ["Kopi Kampung", "Blue Lagon", "MilkTea"]
+  menu = ["Kopi Kampung", "Blueocean", "Milktea"]
   while True:
     time.sleep(random.randint(12,12))
     item = random.sample(menu, k=2)
@@ -63,7 +79,7 @@ def generator_ojol():
 
 # Generator Walk In
 def generator_walkIn():
-  menu = ["Kopi Aren", "ButterScotch", "Pasta"]
+  menu = ["Kopi Aren", "Butterscotch", "Pasta"]
   while True:
     time.sleep(random.randint(7,15))
     item = random.choice(menu)
@@ -94,19 +110,17 @@ def generator_walkIn():
 
 
 # Thread Pemroses
-# TERAKHIR PENGERJAAN STUCK DI NAMA BARISTA
 NAMA = "Ucup"
 # Ada pembaruan
 def barista_eksekutor():
   # Penambahan fitur di barista
-  # nama_barista = threading.current_thread().name
   while True:
     if not antrean_utama.empty():
       prio, time_stamp, data = antrean_utama.get()
 
-      print(f"\n >>Barista: { NAMA} SEDANG MEMBUAT: {data} (Prioritas: {prio})  (DURASI: {data.durasi})")
-      time.sleep(5)
-      print(f">>> Barista:{ NAMA} PESANAN {data} SELESAI!!")
+      print(f"\n >>Barista: { NAMA} SEDANG MEMBUAT: {data} (Prioritas: {prio})  (DURASI: {data.durasi})<<<<")
+      time.sleep(data.durasi)
+      print(f"!!!!!Barista:{ NAMA} PESANAN {data} SELESAI!!!!!!")
 
       antrean_utama.task_done()
    
@@ -126,7 +140,6 @@ handler3 = threading.Thread(target=barista_eksekutor, daemon=True)
 t_ojol = threading.Thread(target=generator_ojol, daemon=True)
 t_walkin = threading.Thread(target=generator_walkIn, daemon=True)
 # t_web = threading.Thread(target=scheduler_web, daemon=True)
-# Penambahan Jumlah Barista
 t_ojol.start()
 t_walkin.start()
 # t_web.start()
